@@ -1,0 +1,7 @@
+{
+  "name": "ion-bgo",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
