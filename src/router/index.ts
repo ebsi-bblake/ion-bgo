@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { RouteRecordRaw } from "vue-router";
-import DashboardLayout from "@/pages/Dashboard/DashboardLayout.vue";
+import DashboardLayout from "@/pages/Dashboard/DashboardLayout/DashboardLayout.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -50,6 +50,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "to-do-list",
         name: "to-do-list",
         component: () => import("@/pages/Dashboard/ToDoListPage.vue"),
+      },
+      {
+        path: "ai-chat",
+        name: "ai-chat",
+        component: () => import("@/pages/Dashboard/AiChatPage.vue"),
       },
     ],
   },
