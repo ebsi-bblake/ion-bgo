@@ -27,7 +27,7 @@ export default defineConfig({
   },
   build: {
     target: "es2015",
-    outDir: "dist",
+    outDir: "docs",
     assetsDir: "assets",
     minify: "terser",
   },

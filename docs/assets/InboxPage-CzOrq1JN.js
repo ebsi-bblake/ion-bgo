@@ -1,0 +1,1 @@
+import{d as a,c as s,w as e,u as o,o as n,b as t,g as l,h as r}from"./index-Djcj7-i_.js";import{E as u}from"./ExploreContainer-B-yPZ3yg.js";const f=a({__name:"InboxPage",setup:a=>(a,f)=>(n(),s(o(r),null,{default:e((()=>[t(o(l),{fullscreen:!0},{default:e((()=>[t(u,{name:"Inbox page"})])),_:1})])),_:1}))});export{f as default};
