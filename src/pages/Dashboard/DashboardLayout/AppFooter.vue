@@ -1,6 +1,7 @@
 <template>
   <ion-footer>
-    <ion-toolbar>
+    <ion-toolbar :id="toolbarId">
+      This will be styled differently on iOS.>
       <ion-tabs>
         <ion-router-outlet></ion-router-outlet>
         <ion-tab-bar slot="bottom">
@@ -46,10 +47,12 @@ import {
   callOutline,
   settingsOutline,
 } from "ionicons/icons";
+import { Capacitor } from "@capacitor/core";
+const toolbarId = Capacitor.platform !== "web" ? "ion-toolbar-footer" : null;
 </script>
 
 <style scoped>
-ion-toolbar {
+#ion-toolbar-footer {
   --min-height: 100px;
   --padding-top: 20px;
   --padding-bottom: 0px;

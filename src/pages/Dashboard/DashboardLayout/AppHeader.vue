@@ -16,7 +16,10 @@
         </ion-button>
       </ion-buttons>
       <ion-buttons slot="primary">
-        <ion-button id="notifications-button" href="/dashboard/to-do-list">
+        <ion-button
+          id="notifications-button"
+          router-link="/dashboard/to-do-list"
+        >
           <ion-icon
             slot="icon-only"
             id="notifications-icon"
@@ -27,6 +30,7 @@
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
+  <ion-router-outlet id="main-content"></ion-router-outlet>
 </template>
 
 <script setup lang="ts">
@@ -40,6 +44,7 @@ import {
   IonButton,
   IonIcon,
   IonBadge,
+  IonRouterOutlet,
 } from "@ionic/vue";
 import { personCircle, search, notificationsOutline } from "ionicons/icons";
 
