@@ -24,14 +24,8 @@
       "@components/*": [
         "src/components/*"
       ],
-      "@views/*": [
-        "src/views/*"
-      ],
-      "@layouts/*": [
-        "src/views/layouts/*"
-      ],
       "@pages/*": [
-        "src/views/pages/*"
+        "src/pages/*"
       ]
     }
   },
