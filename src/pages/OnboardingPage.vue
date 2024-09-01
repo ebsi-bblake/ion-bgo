@@ -1,7 +1,6 @@
 <template>
   <ion-page>
     <ion-content class="ion-padding">
-      <ion-toolbar></ion-toolbar>
       <h1>Welcome to Our App</h1>
       <p>
         This is the onboarding page. Here you can introduce your app to new
@@ -13,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonContent, IonButton, IonToolbar } from "@ionic/vue";
+import { IonPage, IonContent, IonButton } from "@ionic/vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();

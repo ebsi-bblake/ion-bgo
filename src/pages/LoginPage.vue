@@ -1,7 +1,6 @@
 <template>
   <ion-page :fullscreen="true">
     <ion-content class="ion-padding">
-      <ion-toolbar></ion-toolbar>
       <h1>Login</h1>
       <ion-item>
         <ion-label position="floating">Username</ion-label>
@@ -25,7 +24,6 @@ import {
   IonLabel,
   IonInput,
   IonButton,
-  IonToolbar,
 } from "@ionic/vue";
 import { useRouter } from "vue-router";
 

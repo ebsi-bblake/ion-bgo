@@ -9,6 +9,8 @@
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
+    "sync:ios": "ionic capacitor sync ios",
+    "404": "cp docs/index.html docs/404.html",
     "lint": "eslint ."
   },
   "dependencies": {

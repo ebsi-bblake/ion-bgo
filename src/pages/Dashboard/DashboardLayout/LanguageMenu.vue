@@ -1,5 +1,5 @@
 <template>
-  <ion-menu side="end" menu-id="language-menu" content-id="main-content">
+  <ion-menu side="end" menu-id="language-menu" content-id="main-content" type="overlay" class="full-width">
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
@@ -50,3 +50,9 @@ import {
 } from "@ionic/vue";
 import { arrowBackOutline } from "ionicons/icons";
 </script>
+
+<style scoped>
+.full-width {
+  --width: 100%;
+}
+</style>

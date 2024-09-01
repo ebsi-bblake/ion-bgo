@@ -1,6 +1,6 @@
 <template>
   <!-- MENU -->
-  <ion-menu content-id="main-content">
+  <ion-menu content-id="main-content" type="overlay" class="full-width">
     <ion-header>
       <ion-toolbar>
         <ion-title>Menu</ion-title>
@@ -32,17 +32,11 @@
                 <ion-icon slot="start" :icon="eyeOutline"></ion-icon>
                 Vision
               </ion-item>
-              <ion-item
-                button
-                @click="navigateTo('/dashboard/employee-assistance')"
-              >
+              <ion-item button @click="navigateTo('/dashboard/employee-assistance')">
                 <ion-icon slot="start" :icon="helpBuoyOutline"></ion-icon>
                 Employee Assistance
               </ion-item>
-              <ion-item
-                button
-                @click="navigateTo('/dashboard/supplemental-benefits')"
-              >
+              <ion-item button @click="navigateTo('/dashboard/supplemental-benefits')">
                 <ion-icon slot="start" :icon="leafOutline"></ion-icon>
                 Supplemental Benefits
               </ion-item>
@@ -59,17 +53,11 @@
                 <ion-icon slot="start" :icon="cardOutline"></ion-icon>
                 Retirement
               </ion-item>
-              <ion-item
-                button
-                @click="navigateTo('/dashboard/health-savings-account')"
-              >
+              <ion-item button @click="navigateTo('/dashboard/health-savings-account')">
                 <ion-icon slot="start" :icon="cashOutline"></ion-icon>
                 Health Savings Account
               </ion-item>
-              <ion-item
-                button
-                @click="navigateTo('/dashboard/flex-spending-account')"
-              >
+              <ion-item button @click="navigateTo('/dashboard/flex-spending-account')">
                 <ion-icon slot="start" :icon="walletOutline"></ion-icon>
                 Flex Spending Account
               </ion-item>
@@ -86,10 +74,7 @@
               Life Experiences
             </ion-item>
             <ion-list slot="content" class="ion-padding-start">
-              <ion-item
-                button
-                @click="navigateTo('/dashboard/growing-your-family')"
-              >
+              <ion-item button @click="navigateTo('/dashboard/growing-your-family')">
                 <ion-icon slot="start" :icon="personAddOutline"></ion-icon>
                 Growing Your Family
               </ion-item>
@@ -101,17 +86,11 @@
                 <ion-icon slot="start" :icon="documentsOutline"></ion-icon>
                 Divorce
               </ion-item>
-              <ion-item
-                button
-                @click="navigateTo('/dashboard/other-qualifying-events')"
-              >
+              <ion-item button @click="navigateTo('/dashboard/other-qualifying-events')">
                 <ion-icon slot="start" :icon="layersOutline"></ion-icon>
                 Other Qualifying Events
               </ion-item>
-              <ion-item
-                button
-                @click="navigateTo('/dashboard/change-current-benefits')"
-              >
+              <ion-item button @click="navigateTo('/dashboard/change-current-benefits')">
                 <ion-icon slot="start" :icon="pencilOutline"></ion-icon>
                 Change Current Benefits
               </ion-item>
@@ -147,7 +126,7 @@
         <ion-item button @click="openLanguageMenu()" class="menu-footer">
           <ion-icon slot="start" :icon="globeOutline"></ion-icon>
           <ion-label>English</ion-label>
-          <ion-icon :icon="chevronForward" slot="end"></ion-icon>
+          <ion-icon :icon="chevronForward" ion-hide="ios" slot="end"></ion-icon>
         </ion-item>
 
         <!-- <ion-footer> -->
@@ -220,5 +199,9 @@ ion-list {
 
 .menu-footer {
   margin-top: auto;
+}
+
+.full-width {
+  --width: 100%;
 }
 </style>

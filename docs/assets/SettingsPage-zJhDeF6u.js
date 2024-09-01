@@ -1,1 +1,0 @@
-import{d as a,c as s,w as e,u as t,o as n,b as o,g as l,h as r}from"./index-DQ4-IXNi.js";import{E as u}from"./ExploreContainer-CJW-vIc0.js";const f=a({__name:"SettingsPage",setup:a=>(a,f)=>(n(),s(t(r),null,{default:e((()=>[o(t(l),{fullscreen:!0},{default:e((()=>[o(u,{name:"Settings page"})])),_:1})])),_:1}))});export{f as default};
