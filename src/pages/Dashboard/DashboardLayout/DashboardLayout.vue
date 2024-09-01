@@ -17,7 +17,7 @@ import AppFooter from "./AppFooter.vue";
 import AiFloatingButton from "./AiFloatingBtn.vue";
 import SideMenu from "./SideMenu.vue";
 import LanguageMenu from "./LanguageMenu.vue";
-import logoIcon from "./1024.png";
+import logoIcon from "/1024.png";
 
 const screenWidth = inject("screenWidth", ref(window.innerWidth));
 const showTabs = computed(() => screenWidth.value <= 768);
