@@ -1,1 +1,0 @@
-import{d as a,c as s,w as e,u as t,o,b as n,g as l,h as r}from"./index-BmvdExpm.js";import{E as u}from"./ExploreContainer-RIlpzNY2.js";const c=a({__name:"ContactUsPage",setup:a=>(a,c)=>(o(),s(t(r),null,{default:e((()=>[n(t(l),{fullscreen:!0},{default:e((()=>[n(u,{name:"contact us page"})])),_:1})])),_:1}))});export{c as default};

@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/ion-bgo/dev-sw.js?dev-sw', { scope: '/ion-bgo/', type: 'classic' })

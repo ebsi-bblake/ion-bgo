@@ -1,10 +1,9 @@
 <template>
   <ion-footer>
-    <ion-toolbar :id="toolbarId">
-      This will be styled differently on iOS.>
+    <ion-toolbar>
       <ion-tabs>
-        <ion-router-outlet></ion-router-outlet>
-        <ion-tab-bar slot="bottom">
+        <ion-router-outlet> </ion-router-outlet>
+        <ion-tab-bar :id="toolbarid" slot="bottom">
           <ion-tab-button tab="ai" href="/dashboard/ai-chat">
             <ion-icon class="ai-focus" />
           </ion-tab-button>
@@ -48,15 +47,19 @@ import {
   settingsOutline,
 } from "ionicons/icons";
 import { Capacitor } from "@capacitor/core";
-console.log("platform", Capacitor.platform);
-const toolbarId = Capacitor.platform !== "web" ? "ion-toolbar-footer" : null;
+console.log("platform", Capacitor.platform, window.innerWidth);
+const toolbarid =
+  Capacitor.platform == "web" && window.innerWidth <= 700
+    ? "ion-toolbar-footer"
+    : null;
+console.log("toolbar id is: ", toolbarid);
 </script>
 
 <style scoped>
 #ion-toolbar-footer {
-  --min-height: 100px;
-  --padding-top: 20px;
-  --padding-bottom: 0px;
+  /* --min-height: 85px; */
+  /* --padding-top: 20px; */
+  /* --padding-bottom: 0px; */
   padding-bottom: 0px !important;
 }
 </style>
