@@ -48,6 +48,7 @@ import {
   settingsOutline,
 } from "ionicons/icons";
 import { Capacitor } from "@capacitor/core";
+console.log("platform", Capacitor.platform);
 const toolbarId = Capacitor.platform !== "web" ? "ion-toolbar-footer" : null;
 </script>
 
