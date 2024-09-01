@@ -37,7 +37,7 @@ import "./theme/variables.css";
 // Register the service worker
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
-    .register("/ion-bgo/sw.js")
+    .register("/sw.js")
     .then(() => console.log("Service Worker Registered"));
 }
 
