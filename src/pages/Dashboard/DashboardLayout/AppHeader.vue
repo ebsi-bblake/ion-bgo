@@ -15,18 +15,11 @@
           <ion-icon slot="icon-only" :icon="search"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-buttons slot="primary">
-        <ion-button
-          id="notifications-button"
-          router-link="/dashboard/to-do-list"
-        >
-          <ion-icon
-            slot="icon-only"
-            id="notifications-icon"
-            :icon="notificationsOutline"
-          ></ion-icon>
-          <ion-badge id="notifications-badge" color="danger">1</ion-badge>
+      <ion-buttons slot="primary" id="notifications-wrapper">
+        <ion-button id="notifications-button" router-link="/dashboard/to-do-list">
+          <ion-icon slot="icon-only" id="notifications-icon" :icon="notificationsOutline"></ion-icon>
         </ion-button>
+        <ion-badge id="notifications-badge" color="danger">1</ion-badge>
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
@@ -58,14 +51,19 @@ ion-toolbar {
   --padding-bottom: 20px;
 }
 
-#notification-button {
+#notifications-wrapper {
   position: relative;
+}
+
+#notifications-button {
   top: 1px;
   right: 1px;
+  min-height: 42px;
   overflow: visible !important;
 }
 
 #notifications-icon {
+  position: absolute;
   font-size: 40px;
   width: 40px;
   height: 40px;
@@ -75,9 +73,9 @@ ion-toolbar {
   background-color: maroon;
   color: white;
   position: absolute;
-  width: 18px;
-  top: -3px;
-  right: -3px;
+  width: 22px;
+  top: -4px;
+  right: 1px;
   border-radius: 100%;
 }
 

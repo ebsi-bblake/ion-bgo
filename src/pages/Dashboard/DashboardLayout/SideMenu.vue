@@ -126,7 +126,7 @@
         <ion-item button @click="openLanguageMenu()" class="menu-footer">
           <ion-icon slot="start" :icon="globeOutline"></ion-icon>
           <ion-label>English</ion-label>
-          <ion-icon :icon="chevronForward" ion-hide="ios" slot="end"></ion-icon>
+          <ion-icon :icon="chevronForward" v-if="isWeb" slot="end"></ion-icon>
         </ion-item>
 
         <!-- <ion-footer> -->
@@ -176,15 +176,13 @@ import {
   globeOutline,
   chevronForward,
 } from "ionicons/icons";
-
-import { menuController } from "@ionic/vue";
-
+import { menuController, getPlatforms } from "@ionic/vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 const navigateTo = (path: string) => {
   router.push(path);
 };
-
+const isWeb = getPlatforms().includes("web");
 const openLanguageMenu = () => {
   menuController.open("language-menu");
 };
