@@ -1,0 +1,1 @@
+import{d as a,c as s,w as e,u as t,o,b as n,g as l,h as r}from"./index-Dr0nhiIo.js";import{E as u}from"./ExploreContainer-_hNG_Q_g.js";const c=a({__name:"ContactUsPage",setup:a=>(a,c)=>(o(),s(t(r),null,{default:e((()=>[n(t(l),{fullscreen:!0},{default:e((()=>[n(u,{name:"contact us page"})])),_:1})])),_:1}))});export{c as default};
