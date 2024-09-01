@@ -11,12 +11,12 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "Onboarding",
-    component: import("@/pages/OnboardingPage.vue"),
+    component: () => import("@/pages/OnboardingPage.vue"),
   },
   {
     path: "/login",
     name: "Login",
-    component: import("@/pages/LoginPage.vue"),
+    component: () => import("@/pages/LoginPage.vue"),
   },
   {
     path: "/dashboard",
@@ -29,32 +29,32 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "home",
         name: "home",
-        component: import("@/pages/Dashboard/HomePage.vue"),
+        component: () => import("@/pages/Dashboard/HomePage.vue"),
       },
       {
         path: "inbox",
         name: "inbox",
-        component: import("@/pages/Dashboard/InboxPage.vue"),
+        component: () => import("@/pages/Dashboard/InboxPage.vue"),
       },
       {
         path: "contact-us",
         name: "contact-us",
-        component: import("@/pages/Dashboard/ContactUsPage.vue"),
+        component: () => import("@/pages/Dashboard/ContactUsPage.vue"),
       },
       {
         path: "settings",
         name: "settings",
-        component: import("@/pages/Dashboard/SettingsPage.vue"),
+        component: () => import("@/pages/Dashboard/SettingsPage.vue"),
       },
       {
         path: "to-do-list",
         name: "to-do-list",
-        component: import("@/pages/Dashboard/ToDoListPage.vue"),
+        component: () => import("@/pages/Dashboard/ToDoListPage.vue"),
       },
       {
         path: "ai-chat",
         name: "ai-chat",
-        component: import("@/pages/Dashboard/AiChatPage.vue"),
+        component: () => import("@/pages/Dashboard/AiChatPage.vue"),
       },
     ],
   },
