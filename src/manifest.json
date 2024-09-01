@@ -1,9 +1,11 @@
 {
   "name": "ion-bgo",
+  "id": "/ion-bgo",
   "short_name": "IonBGO",
   "description": "An Ionic version of BGO...just in case",
   "start_url": "/ion-bgo",
   "display": "fullscreen",
+  "display_override": "fullscreen",
   "background_color": "#ffffff",
   "theme_color": "#3880ff",
   "icons": [
