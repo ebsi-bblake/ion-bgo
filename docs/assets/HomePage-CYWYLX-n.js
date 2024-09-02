@@ -1,1 +1,0 @@
-import{d as a,c as e,w as s,u as o,o as t,b as l,f as m,g as n}from"./index-q7p7p2XK.js";import{E as r}from"./ExploreContainer-DZvAf61y.js";const f=a({__name:"HomePage",setup:a=>(a,f)=>(t(),e(o(n),null,{default:s((()=>[l(o(m),{fullscreen:!0},{default:s((()=>[l(r,{name:"Home page"})])),_:1})])),_:1}))});export{f as default};

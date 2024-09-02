@@ -55,7 +55,8 @@ const toolbarid =
 
 <style scoped>
 #ion-toolbar-footer {
-  --min-height: 100px;
+  --min-height: 70px;
+  height: 70px;
   /* --padding-top: 20px; */
   /* --padding-bottom: 0px; */
   padding-bottom: 0px !important;

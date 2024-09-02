@@ -1,6 +1,6 @@
 <template>
   <!-- MENU -->
-  <ion-menu content-id="main-content" type="overlay" class="full-width">
+  <ion-menu menu-id="side-menu" content-id="main-content" type="overlay" class="full-width">
     <ion-header>
       <ion-toolbar>
         <ion-title>Menu</ion-title>
@@ -180,11 +180,16 @@ import { menuController, getPlatforms } from "@ionic/vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 const navigateTo = (path: string) => {
+  closeSideMenu();
   router.push(path);
 };
 const isWeb = getPlatforms().includes("web");
 const openLanguageMenu = () => {
   menuController.open("language-menu");
+};
+
+const closeSideMenu = () => {
+  menuController.close("side-menu");
 };
 </script>
 

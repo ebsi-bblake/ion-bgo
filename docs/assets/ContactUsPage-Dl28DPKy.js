@@ -1,0 +1,1 @@
+import{d as a,c as s,w as e,u as t,o,b as n,f as l,g as r}from"./index-rsNTNyVK.js";import{E as u}from"./ExploreContainer-C3FF23pV.js";const f=a({__name:"ContactUsPage",setup:a=>(a,f)=>(o(),s(t(r),null,{default:e((()=>[n(t(l),{fullscreen:!0},{default:e((()=>[n(u,{name:"contact us page"})])),_:1})])),_:1}))});export{f as default};
