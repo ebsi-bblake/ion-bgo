@@ -1,0 +1,1 @@
+import{d as a,c as s,w as e,u as o,o as t,b as l,f as n,g as r}from"./index-q7p7p2XK.js";import{E as f}from"./ExploreContainer-DZvAf61y.js";const u=a({__name:"ToDoListPage",setup:a=>(a,u)=>(t(),s(o(r),null,{default:e((()=>[l(o(n),{fullscreen:!0},{default:e((()=>[l(f,{name:"To Do List page"})])),_:1})])),_:1}))});export{u as default};

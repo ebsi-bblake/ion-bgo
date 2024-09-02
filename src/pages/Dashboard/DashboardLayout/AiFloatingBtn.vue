@@ -1,10 +1,5 @@
 <template>
-  <ion-fab
-    vertical="bottom"
-    horizontal="start"
-    slot="fixed"
-    style="bottom: 28px"
-  >
+  <ion-fab vertical="bottom" horizontal="start" slot="fixed" style="bottom: 0px">
     <ion-fab-button id="ai-fab-btn" @click="navigateTo('ai-chat')">
       <ion-icon icon=""></ion-icon>
     </ion-fab-button>
@@ -32,6 +27,5 @@ on-fab-button {
   --height: 56px;
   --border-radius: 50%;
   --background: #3880ff;
-  /* or whatever color you prefer */
 }
 </style>
