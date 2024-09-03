@@ -2,6 +2,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
 
+import { defineCustomElements } from "@ionic/pwa-elements/loader";
 import { IonicVue } from "@ionic/vue";
 
 /* Core CSS required for Ionic components to work properly */
@@ -40,7 +41,8 @@ if ("serviceWorker" in navigator) {
     .register("/ion-bgo/sw.js")
     .then(() => console.log("Service Worker Registered"));
 }
-
+// Above the createApp() line
+defineCustomElements(window);
 const app = createApp(App).use(IonicVue).use(router);
 
 router.isReady().then(() => {

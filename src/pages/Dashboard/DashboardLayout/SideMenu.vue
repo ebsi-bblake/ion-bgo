@@ -12,7 +12,10 @@
           <ion-icon slot="start" :icon="homeOutline"></ion-icon>
           Home
         </ion-item>
-
+        <ion-item button @click="navigateTo('/dashboard/document-viewer')">
+          <ion-icon slot="start" :icon="documentOutline"></ion-icon>
+          Document Scanner
+        </ion-item>
         <ion-accordion-group>
           <ion-accordion value="health-wellness">
             <ion-item slot="header">

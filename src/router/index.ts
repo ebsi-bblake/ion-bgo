@@ -56,6 +56,11 @@ const routes: Array<RouteRecordRaw> = [
         name: "ai-chat",
         component: () => import("@/pages/Dashboard/AiChatPage.vue"),
       },
+      {
+        path: "document-viewer",
+        name: "document-viewer",
+        component: () => import("@/pages/Dashboard/DocumentViewerPage.vue"),
+      },
     ],
   },
 ];

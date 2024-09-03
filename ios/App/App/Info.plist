@@ -49,6 +49,8 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<true/>
+		<true/>
+<key>NSCameraUsageDescription</key>
+<string>Your app needs access to the camera to scan documents.</string>
 </dict>
 </plist>

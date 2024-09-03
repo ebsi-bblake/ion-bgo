@@ -2,7 +2,7 @@
   <ion-page>
     <AppHeader :show-tabs="showTabs" :logo-icon="logoIcon" />
     <AiFloatingButton />
-    <ion-router-outlet id="main-content"></ion-router-outlet>
+    <ion-router-outlet id="main-content" class="container"></ion-router-outlet>
     <AppFooter v-if="showTabs" />
     <SideMenu />
     <LanguageMenu />

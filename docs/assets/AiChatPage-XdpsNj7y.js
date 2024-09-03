@@ -1,1 +1,0 @@
-import{d as a,c as s,w as e,u as t,o,b as l,f as n,g as r}from"./index-rsNTNyVK.js";import{E as f}from"./ExploreContainer-C3FF23pV.js";const u=a({__name:"AiChatPage",setup:a=>(a,u)=>(o(),s(t(r),null,{default:e((()=>[l(t(n),{fullscreen:!0},{default:e((()=>[l(f,{name:"ai chat"})])),_:1})])),_:1}))});export{u as default};
