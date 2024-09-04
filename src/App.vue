@@ -24,7 +24,7 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("resize", updateScreenWidth);
 });
-
+console.log("hi");
 // Provide the screenWidth to be accessible by other components
 provide("screenWidth", screenWidth);
 </script>
