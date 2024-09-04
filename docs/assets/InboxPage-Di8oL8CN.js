@@ -1,0 +1,1 @@
+import{d as a,c as s,w as e,u as o,o as n,b as t,f as l,g as r}from"./index-B7hZxyvk.js";import{E as f}from"./ExploreContainer-Cr_GMvXr.js";const p=a({__name:"InboxPage",setup:a=>(a,p)=>(n(),s(o(r),null,{default:e((()=>[t(o(l),{fullscreen:!0},{default:e((()=>[t(f,{name:"Inbox page"})])),_:1})])),_:1}))});export{p as default};
