@@ -34,7 +34,6 @@ import "@ionic/vue/css/palettes/dark.system.css";
 
 /* Theme variables */
 import "./theme/variables.css";
-console.log("hi?");
 // Register the service worker
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker

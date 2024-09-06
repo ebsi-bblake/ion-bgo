@@ -19,7 +19,7 @@ let package = Package(
         .package(name: "CapacitorKeyboard", path: "../../../node_modules/@capacitor/keyboard"),
         .package(name: "CapacitorShare", path: "../../../node_modules/@capacitor/share"),
         .package(name: "CapacitorStatusBar", path: "../../../node_modules/@capacitor/status-bar"),
-        .package(name: "CapacitorDocumentScanner", path: "../../../node_modules/capacitor-document-scanner")
+        .package(name: "CapacitorDocumentScanner", path: "../../../../docusign")
     ],
     targets: [
         .target(

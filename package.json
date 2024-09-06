@@ -6,15 +6,18 @@
   "scripts": {
     "404": "cp docs/index.html docs/404.html",
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "vue-tsc && vite build && npm run 404",
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
     "sync:ios": "ionic capacitor sync ios",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "serve": "ionic serve --ssl --ssl-key certs/ion-bgo.key --ssl-cert certs/ion-bgo.crt --external --host=192.168.7.206",
+    "run:ios": "ionic capacitor run ios -l --external",
+    "certs": "mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem 'localhost'"
   },
   "dependencies": {
-    "@capacitor/android": "^6.1.2",
+    "@capacitor/android": "6.1.2",
     "@capacitor/app": "6.0.1",
     "@capacitor/camera": "^6.0.2",
     "@capacitor/core": "6.1.2",
@@ -27,7 +30,8 @@
     "@ionic/pwa-elements": "^3.3.0",
     "@ionic/vue": "^8.0.0",
     "@ionic/vue-router": "^8.2.7",
-    "capacitor-document-scanner": "github:ebsi-bblake/docusign",
+    "@tensorflow/tfjs": "^4.21.0",
+    "capacitor-document-scanner": "../docusign/",
     "ionicons": "^7.0.0",
     "vue": "^3.3.0",
     "vue-router": "^4.2.0"
@@ -45,6 +49,7 @@
     "terser": "^5.4.0",
     "typescript": "^5.1.6",
     "vite": "~5.2.0",
+    "vite-plugin-mkcert": "^1.17.6",
     "vite-plugin-pwa": "^0.20.2",
     "vitest": "^0.34.6",
     "vue-tsc": "^2.0.22"

@@ -1,44 +1,129 @@
 <template>
-  <ion-page class="container">
-    <ion-content :fullscreen="true">
-      <span v-if="isClicked">{{ scannedImages }}</span>
-      <IonButton @click="scanDocument">Test</IonButton>
-      <ExploreContainer name="Document Viewewrpage" />
+  <ion-page>
+    <ion-content>
+      <ion-img :src="imageSrc" id="scannedImage"></ion-img>
+      <canvas ref="canvasRef" id="outputCanvas"></canvas>
+      <!-- Add ref for canvas -->
+      <video ref="videoRef" playsinline autoplay muted hidden></video>
+      <!-- Add ref for video -->
+      <div class="action-buttons">
+        <ion-button v-if="!isMobile" @click="reqPerms"
+          >Get Permissions</ion-button
+        >
+        <ion-button v-if="hasPerm" @click="scanDocument">Test</ion-button>
+      </div>
     </ion-content>
   </ion-page>
 </template>
 
-<script setup lang="ts">
-import { IonPage, IonContent, IonButton } from "@ionic/vue";
-import ExploreContainer from "@/components/ExploreContainer.vue";
+<script setup>
+import { ref, onMounted } from "vue";
+import {
+  IonPage,
+  IonContent,
+  IonImg,
+  IonButton,
+  getPlatforms,
+} from "@ionic/vue";
 import { Capacitor } from "@capacitor/core";
 import { DocumentScanner } from "capacitor-document-scanner";
-import { ref } from "vue";
-const isClicked = ref(false);
-const contents = ref("");
+
+// Refs to manage states
+const isMobile = getPlatforms().includes("capacitor");
+const imageSrc = ref("");
+const hasPerm = ref(isMobile);
+
+// Refs for video and canvas elements
+const videoRef = ref(null); // Ref for video element
+const canvasRef = ref(null); // Ref for canvas element
+
+const reqPerms = () => {
+  navigator.permissions
+    .query({ name: "camera" })
+    .then((s) => {
+      console.log(s);
+      hasPerm.value = true;
+    })
+    .catch((e) => console.log("No camera permissions: ", e));
+};
+
 const scanDocument = async () => {
-  isClicked.value = !isClicked.value;
-  contents.value = JSON.stringify(DocumentScanner);
-  // start the document scanner
-  const { scannedImages } = await DocumentScanner.scanDocument();
-  // get back an array with scanned image file paths
-  if (scannedImages.length > 0) {
-    // set the img src, so we can view the first scanned image
-    const scannedImage = document.getElementById(
-      "scannedImage",
-    ) as HTMLImageElement;
-    scannedImage.src = Capacitor.convertFileSrc(scannedImages[0]);
+  if (isMobile) {
+    try {
+      const { scannedImages } = await DocumentScanner.scanDocument({
+        responseType: "base64",
+      });
+      if (scannedImages) {
+        imageSrc.value = Capacitor.convertFileSrc(scannedImages[0]);
+      }
+    } catch (error) {
+      console.error("Scan failed:", error);
+    }
+  } else {
+    startVideoFeed();
   }
 };
-</script>
 
+const startVideoFeed = async () => {
+  if (!canvasRef.value || !videoRef.value) return; // Ensure refs are set
+
+  const context = canvasRef.value.getContext("2d");
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: "environment",
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      },
+    });
+
+    videoRef.value.srcObject = stream;
+    videoRef.value.onloadedmetadata = () => {
+      videoRef.value.play();
+      console.log("Video metadata loaded, video playing.");
+      requestAnimationFrame(() => drawToCanvas(videoRef.value, context));
+    };
+  } catch (error) {
+    console.error("Error accessing camera:", error);
+  }
+};
+
+function drawToCanvas(video, context) {
+  if (video.paused || video.ended) {
+    console.log("Video is paused or ended.");
+    return;
+  }
+
+  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+  context.drawImage(video, 0, 0, context.canvas.width, context.canvas.height);
+
+  requestAnimationFrame(() => drawToCanvas(video, context));
+}
+
+// Run onMounted to ensure the component is fully loaded
+onMounted(() => {
+  // You can put any initialization logic here if needed
+});
+</script>
 <style scoped>
-.container {
+#outputCanvas {
+  /* position: relative; */
+  top: 100px;
+  width: 100%;
+  max-width: 640px;
+  height: 460px;
+  margin-top: 100px;
+  border: 1px solid #ccc;
+  overflow: hidden;
+}
+
+.action-buttons {
+  margin-top: 20px;
   text-align: center;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+}
+
+ion-button {
+  margin: 0 10px;
 }
 </style>

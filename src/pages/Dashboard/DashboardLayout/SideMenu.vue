@@ -186,7 +186,7 @@ const navigateTo = (path: string) => {
   closeSideMenu();
   router.push(path);
 };
-const isWeb = getPlatforms().includes("web");
+const isWeb = getPlatforms().includes("desktop");
 const openLanguageMenu = () => {
   menuController.open("language-menu");
 };

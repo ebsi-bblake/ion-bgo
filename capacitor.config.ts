@@ -6,7 +6,8 @@ const config: CapacitorConfig = {
   webDir: "docs",
   ios: {
     webContentsDebuggingEnabled: true,
-  }, // server: {
+  },
+  // server: {
   //   url: "http://localhost:8100",
   //   cleartext: true,
   //   allowNavigation: ["*"],
