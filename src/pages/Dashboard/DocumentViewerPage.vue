@@ -1,65 +1,114 @@
 <template>
   <ion-page>
     <ion-content>
-      <ion-img :src="imageSrc" id="scannedImage"></ion-img>
+      <!-- Video feed (hidden after capture) -->
+      <video
+        ref="videoRef"
+        id="videoSource"
+        playsinline
+        autoplay
+        muted
+        style="opacity: 0; width: 0; height: 0"
+      ></video>
+
+      <!-- Initial Canvas for video frame (hidden after capture) -->
       <canvas ref="canvasRef" id="outputCanvas"></canvas>
-      <video ref="videoRef" playsinline autoplay muted hidden></video>
+
+      <!-- Canvas for captured image (visible after capture) -->
+      <canvas
+        ref="resultCanvasRef"
+        id="resultCanvas"
+        style="display: none"
+      ></canvas>
 
       <div class="action-buttons">
-        <!-- Show these buttons when the video is NOT playing -->
-        <ion-button v-if="!isVideoPlaying && !isMobile" @click="reqPerms"
-          >Get Permissions</ion-button
-        >
-        <ion-button v-if="!isVideoPlaying && hasPerm" @click="scanDocument"
-          >Start</ion-button
-        >
+        <ion-button v-if="appState === AppState.Pre" @click="scanDocument">
+          Start
+        </ion-button>
 
-        <!-- Show these buttons when the video IS playing -->
-        <ion-button v-if="isVideoPlaying" @click="captureImage"
-          >Capture Image</ion-button
+        <ion-button
+          v-if="appState === AppState.Streaming"
+          @click="captureImage"
         >
-        <ion-button v-if="isVideoPlaying" @click="toggleFlash"
-          >Turn On Flash</ion-button
+          Capture Image
+        </ion-button>
+        <ion-button v-if="appState === AppState.Streaming" @click="toggleFlash">
+          Turn On Flash
+        </ion-button>
+        <ion-button
+          v-if="appState === AppState.Streaming"
+          @click="stopVideoFeed"
         >
-        <ion-button v-if="isVideoPlaying" @click="cancelOperation"
-          >Cancel</ion-button
+          Stop
+        </ion-button>
+
+        <ion-button
+          v-if="appState === AppState.Capture"
+          @click="extractDocument"
         >
+          Extract
+        </ion-button>
+
+        <ion-button
+          v-if="[AppState.Capture, AppState.Interaction].includes(appState)"
+          @click="saveDocument"
+        >
+          Save
+        </ion-button>
       </div>
     </ion-content>
   </ion-page>
 </template>
+
 <script setup>
-import { ref, onMounted } from "vue";
-import {
-  IonPage,
-  IonContent,
-  IonImg,
-  IonButton,
-  getPlatforms,
-} from "@ionic/vue";
+import { ref } from "vue";
+import { IonPage, IonContent, IonButton } from "@ionic/vue";
 import { Capacitor } from "@capacitor/core";
-import { DocumentScanner } from "capacitor-document-scanner";
+import { DocumentScanner } from "capacitor-document-scanner"; // Your plugin
 
-// Refs to manage states
-const isMobile = getPlatforms().includes("capacitor");
-const imageSrc = ref("");
-const hasPerm = ref(isMobile);
-const isVideoPlaying = ref(false); // Tracks if the video is playing
-const isFlashOn = ref(false);
-// Refs for video and canvas elements
-const videoRef = ref(null); // Ref for video element
-const canvasRef = ref(null); // Ref for canvas element
-
-const reqPerms = () => {
-  navigator.permissions
-    .query({ name: "camera" })
-    .then((s) => {
-      console.log(s);
-      hasPerm.value = true;
-    })
-    .catch((e) => console.log("No camera permissions: ", e));
+// State management
+const AppState = {
+  Pre: "pre",
+  Streaming: "streaming",
+  Capture: "capture",
+  Interaction: "interaction",
+  Save: "save",
 };
 
+// Platform detection
+const isMobile = Capacitor.getPlatform() !== "web";
+
+const appState = ref(AppState.Pre);
+const imageSrc = ref("");
+const videoRef = ref(null);
+const canvasRef = ref(null);
+const resultCanvasRef = ref(null);
+
+// Function  to clear state and start the video feed
+const clearStateAndStart = () => {
+  // Clear state
+  imageSrc.value = ""; // Clear any previously captured image
+  resultCanvasRef.value.style.display = "none"; // Hide the result canvas from previous capture
+  videoRef.value.style.display = "block"; // Make sure the video is visible
+  canvasRef.value.style.display = "block"; // Ensure the canvas is visible for new captures
+
+  // Clear the canvases
+  const outputCtx = canvasRef.value.getContext("2d");
+  const resultCtx = resultCanvasRef.value.getContext("2d");
+  outputCtx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height); // Clear the output canvas
+  resultCtx.clearRect(
+    0,
+    0,
+    resultCanvasRef.value.width,
+    resultCanvasRef.value.height,
+  ); // Clear the result canvas
+
+  // Transition to streaming state and start the video feed
+  appState.value = AppState.Streaming;
+  startVideoFeed();
+};
+
+// Mobile-specific document scanning
 const scanDocument = async () => {
   if (isMobile) {
     try {
@@ -73,182 +122,287 @@ const scanDocument = async () => {
       console.error("Scan failed:", error);
     }
   } else {
-    startVideoFeed();
+    clearStateAndStart();
   }
 };
 
-const startVideoFeed = async () => {
-  if (!canvasRef.value || !videoRef.value) return; // Ensure refs are set
+// Start the video feed
+const startVideoFeed = () => {
+  appState.value = AppState.Streaming;
+  const constraints = {
+    video: {
+      facingMode: "environment",
+      width: { ideal: 1280 },
+      height: { ideal: 720 },
+    },
+  };
 
-  const context = canvasRef.value.getContext("2d");
+  console.log(videoRef.value.style.display);
+  if (!videoRef.value || !canvasRef.value) {
+    console.error("Video or canvas references are not available");
+    return;
+  }
+  // Ensure the canvas is cleared before starting the video again
+  const ctx = canvasRef.value.getContext("2d");
+  ctx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
 
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: "environment",
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
-      },
+  loadOpenCv(() => {
+    console.log("OpenCV loaded and ready.");
+    initCamera(constraints, videoRef.value, () => {
+      // console.log("initCamera", videoRef.value);
+      const ctx = canvasRef.value.getContext("2d");
+      const scanner = new jscanify();
+      copyToCanvas(videoRef.value, ctx, scanner);
     });
-
-    videoRef.value.srcObject = stream;
-    videoRef.value.onloadedmetadata = () => {
-      videoRef.value.play();
-      console.log("Video metadata loaded, video playing.");
-      isVideoPlaying.value = true;
-      requestAnimationFrame(() => drawToCanvas(videoRef.value, context));
-    };
-  } catch (error) {
-    console.error("Error accessing camera:", error);
-  }
+  });
 };
 
-function drawToCanvas(video, context) {
-  if (video.paused || video.ended) return;
+// Camera initialization
+const initCamera = (constraints, videoElement, callback) => {
+  navigator.mediaDevices
+    .getUserMedia(constraints)
+    .then((stream) => {
+      videoElement.srcObject = stream;
+      videoElement.addEventListener("loadeddata", () => {
+        let attempts = 10;
+        const checkVideo = () => {
+          if (attempts > 0) {
+            if (videoElement.videoWidth > 0 && videoElement.videoHeight > 0) {
+              videoElement.play();
+              setVideoAndCanvasDimensions();
+              callback();
+            } else {
+              setTimeout(checkVideo, 100);
+            }
+          } else {
+            callback("Unable to play video stream.");
+          }
+          attempts--;
+        };
+        checkVideo();
+      });
+    })
+    .catch((error) => {
+      console.error("Error accessing camera:", error);
+    });
+};
 
-  // Clear the canvas and draw the current video frame on it
-  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-  context.drawImage(video, 0, 0, context.canvas.width, context.canvas.height);
+const setVideoAndCanvasDimensions = () => {
+  const videoElement = videoRef.value;
+  const canvas = canvasRef.value;
+  const resultCanvas = resultCanvasRef.value;
 
-  // Capture the frame from the canvas
-  const src = cv.imread(context.canvas);
+  const videoWidth = videoElement.videoWidth;
+  const videoHeight = videoElement.videoHeight;
 
-  // Convert to grayscale
-  const gray = new cv.Mat();
-  cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+  // Set video, outputCanvas, and resultCanvas to the same dimensions
+  canvas.width = videoWidth;
+  canvas.height = videoHeight;
+  resultCanvas.width = videoWidth;
+  resultCanvas.height = videoHeight;
+};
 
-  // Apply Canny edge detection
-  const edges = new cv.Mat();
-  cv.Canny(gray, edges, 50, 150, 3, false);
-
-  // Find contours
-  const contours = new cv.MatVector();
-  const hierarchy = new cv.Mat();
-  cv.findContours(
-    edges,
-    contours,
-    hierarchy,
-    cv.RETR_EXTERNAL,
-    cv.CHAIN_APPROX_SIMPLE,
-  );
-
-  // Find the largest contour
-  let largestContour = null;
-  let maxArea = 0;
-  for (let i = 0; i < contours.size(); i++) {
-    const contour = contours.get(i);
-    const area = cv.contourArea(contour);
-    if (area > maxArea) {
-      maxArea = area;
-      largestContour = contour;
-    }
-  }
-
-  if (largestContour) {
-    // Approximate the contour to a polygon
-    const approx = new cv.Mat();
-    const perimeter = cv.arcLength(largestContour, true);
-    cv.approxPolyDP(largestContour, approx, 0.02 * perimeter, true);
-
-    // If the approximated contour has 4 points, assume it's the document
-    if (approx.rows === 4) {
-      // Draw the contour (bounding box or quadrilateral)
-      const points = [];
-      for (let i = 0; i < 4; i++) {
-        points.push({
-          x: approx.intPtr(0, i)[0],
-          y: approx.intPtr(0, i)[1],
-        });
-      }
-      // Draw the quadrilateral
-      for (let i = 0; i < 4; i++) {
-        const startPoint = new cv.Point(points[i].x, points[i].y);
-        const endPoint = new cv.Point(
-          points[(i + 1) % 4].x,
-          points[(i + 1) % 4].y,
-        );
-        cv.line(src, startPoint, endPoint, new cv.Scalar(255, 0, 0, 255), 4);
+// Copy video feed to canvas
+const copyToCanvas = (videoElement, ctx, scanner) => {
+  const frame = () => {
+    if (videoElement) {
+      ctx.drawImage(videoElement, 0, 0);
+      if (canvasRef.value) {
+        const resultCanvas = scanner.highlightPaper(canvasRef.value);
+        if (resultCanvas) {
+          ctx.drawImage(resultCanvas, 0, 0);
+        }
       }
     }
+    requestAnimationFrame(frame);
+  };
+  frame();
+};
 
-    approx.delete();
-  }
-
-  // Display the processed frame back on the canvas
-  cv.imshow(context.canvas, src);
-
-  // Clean up
-  src.delete();
-  gray.delete();
-  edges.delete();
-  contours.delete();
-  hierarchy.delete();
-
-  // Continue processing the next frame
-  requestAnimationFrame(() => drawToCanvas(video, context));
-}
-
+// Capture image and switch to interaction state
 const captureImage = () => {
-  if (!canvasRef.value) return;
+  const canvas = canvasRef.value;
+  const resultCanvas = resultCanvasRef.value;
+  const ctx = resultCanvas.getContext("2d");
 
-  const context = canvasRef.value.getContext("2d");
-  context.drawImage(
-    videoRef.value,
-    0,
-    0,
-    canvasRef.value.width,
-    canvasRef.value.height,
+  ctx.drawImage(videoRef.value, 0, 0, canvas.width, canvas.height);
+  resultCanvas.style.display = "block";
+
+  stopVideoFeed();
+  canvas.style.display = "none";
+  videoRef.value.style.display = "none";
+
+  const imageData = canvas
+    .getContext("2d")
+    .getImageData(0, 0, canvas.width, canvas.height);
+  const srcMat = cv.matFromImageData(imageData);
+  const scanner = new jscanify();
+
+  const contour = scanner.findPaperContour(srcMat);
+
+  if (!contour) {
+    console.error("No document found!");
+    return;
+  }
+  const cornerPoints = scanner.getCornerPoints(contour);
+  // Example calculation of boundary box using corner points
+  // Extract all corner points
+  const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } =
+    cornerPoints;
+
+  // Draw the exact boundary by connecting the corner points
+  ctx.lineWidth = 3; // Set the border width
+  ctx.strokeStyle = "red"; // Set the border color
+  ctx.beginPath();
+  ctx.moveTo(topLeftCorner.x, topLeftCorner.y); // Move to top left corner
+  ctx.lineTo(topRightCorner.x, topRightCorner.y); // Draw line to top right corner
+  ctx.lineTo(bottomRightCorner.x, bottomRightCorner.y); // Draw line to bottom right corner
+  ctx.lineTo(bottomLeftCorner.x, bottomLeftCorner.y); // Draw line to bottom left corner
+  ctx.closePath(); // Close the path (connect bottom left to top left)
+  ctx.stroke(); // Render the border/ Draw the boundary
+
+  appState.value = AppState.Capture; // Switch to interaction state
+};
+
+// const captureImage = () => {
+//   const canvas = canvasRef.value;  // Output canvas where the image is captured
+//   const ctx = canvas.getContext("2d");
+//
+//   // Draw the current video frame onto the output canvas
+//   ctx.drawImage(videoRef.value, 0, 0, canvas.width, canvas.height);
+//
+//   // Assuming the boundary box is calculated using the scanner logic (similar to streaming)
+//   const imageData = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
+//   const srcMat = cv.matFromImageData(imageData);
+//   const scanner = new jscanify();
+//
+//   // Get the boundary box from the scanner or other logic (e.g., from getCornerPoints)
+//   const contour = scanner.findPaperContour(srcMat);
+//   const cornerPoints = scanner.getCornerPoints(contour);
+//
+//   if (!cornerPoints) {
+//     console.error("No valid boundary box found.");
+//     return;
+//   }
+//
+//   // Example calculation of boundary box using corner points
+//   const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } = cornerPoints;
+//
+//   const boundaryBox = {
+//     x: topLeftCorner.x,
+//     y: topLeftCorner.y,
+//     width: topRightCorner.x - topLeftCorner.x,
+//     height: bottomLeftCorner.y - topLeftCorner.y
+//   };
+//
+//   // Draw the boundary box on the captured image
+//   ctx.lineWidth = 3;  // Set the border width
+//   ctx.strokeStyle = 'red';  // Set the border color to match the one during the stream
+//   ctx.strokeRect(boundaryBox.x, boundaryBox.y, boundaryBox.width, boundaryBox.height);  // Draw the boundary
+//
+//   // Transition to the capture state where the user can save or interact
+//   appState.value = AppState.Capture;
+// };
+
+// Extract the document
+const extractDocument = () => {
+  appState.value = AppState.Interaction; // Switch to interaction state
+  const canvas = canvasRef.value;
+  const resultCanvas = resultCanvasRef.value;
+  const ctx = resultCanvas.getContext("2d");
+
+  const imageData = canvas
+    .getContext("2d")
+    .getImageData(0, 0, canvas.width, canvas.height);
+  const srcMat = cv.matFromImageData(imageData);
+  const scanner = new jscanify();
+
+  const contour = scanner.findPaperContour(srcMat);
+  const cornerPoints = scanner.getCornerPoints(contour);
+  const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } =
+    cornerPoints;
+
+  const calculateDistance = (point1, point2) => {
+    return Math.sqrt(
+      Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2),
+    );
+  };
+
+  const paperWidth = Math.max(
+    calculateDistance(topLeftCorner, topRightCorner),
+    calculateDistance(bottomLeftCorner, bottomRightCorner),
+  );
+  const paperHeight = Math.max(
+    calculateDistance(topLeftCorner, bottomLeftCorner),
+    calculateDistance(topRightCorner, bottomRightCorner),
   );
 
-  // Convert the canvas content to an image
-  imageSrc.value = canvasRef.value.toDataURL("image/png");
+  const resultCanvasImage = scanner.extractPaper(
+    canvas,
+    paperWidth,
+    paperHeight,
+  );
+  resultCanvas.width = paperWidth;
+  resultCanvas.height = paperHeight;
+  ctx.drawImage(resultCanvasImage, 0, 0);
 
-  // Stop the video feed and reset the state
-  stopVideoFeed();
+  // appState.value = AppState.Save; // Switch to save state
 };
 
-const toggleFlash = () => {
-  isFlashOn.value = !isFlashOn.value;
-  // Implement the logic to turn on the flash (if supported)
-  console.log(`Flash turned ${isFlashOn.value ? "on" : "off"}`);
+// Save the document
+const saveDocument = () => {
+  // Save document logic
+  appState.value = AppState.Pre; // Reset to pre state
 };
 
-const cancelOperation = () => {
-  stopVideoFeed();
-  imageSrc.value = ""; // Reset the image source
-};
-
+// Stop the video feed
 const stopVideoFeed = () => {
   if (videoRef.value && videoRef.value.srcObject) {
     const tracks = videoRef.value.srcObject.getTracks();
-    tracks.forEach((track) => track.stop());
-    isVideoPlaying.value = false; // Reset the video playing state
+    tracks.forEach((track) => track.stop()); // Stop all tracks
+    videoRef.value.srcObject = null; // Clear the video stream
+  }
+
+  // Clear the canvas
+  // const ctx = canvasRef.value.getContext("2d");
+  // ctx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
+  //
+  appState.value = AppState.Pre; // Reset the app state to 'Pre'
+}; // Load OpenCV before starting the scanner
+const loadOpenCv = (onComplete) => {
+  const openCvURL = "https://docs.opencv.org/4.7.0/opencv.js";
+  const isScriptPresent = !!document.getElementById("open-cv");
+
+  if (isScriptPresent) {
+    onComplete();
+  } else {
+    const script = document.createElement("script");
+    script.id = "open-cv";
+    script.src = openCvURL;
+    script.onload = () => setTimeout(onComplete, 1000);
+    document.body.appendChild(script);
   }
 };
 
-// Run onMounted to ensure the component is fully loaded
-onMounted(() => {
-  // You can put any initialization logic here if needed
-});
+// Toggle flash
+const toggleFlash = () => {
+  isFlashOn.value = !isFlashOn.value;
+};
 </script>
+
 <style scoped>
+#resultCanvas,
 #outputCanvas {
-  /* position: relative; */
+  position: relative;
   top: 100px;
   width: 100%;
   max-width: 640px;
-  height: 460px;
-  margin-top: 100px;
+  height: 560px;
   border: 1px solid #ccc;
-  overflow: hidden;
 }
 
 .action-buttons {
   margin-top: 20px;
   text-align: center;
-}
-
-ion-button {
-  margin: 0 10px;
 }
 </style>
