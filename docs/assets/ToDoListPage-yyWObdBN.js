@@ -1,1 +1,0 @@
-import{d as a,o as s,c as e,w as o,a as t,u as l,f as n,g as r}from"./index-bkwOO0SP.js";import{E as f}from"./ExploreContainer-CSXG0_e-.js";const p=a({__name:"ToDoListPage",setup:a=>(a,p)=>(s(),e(l(r),null,{default:o((()=>[t(l(n),{fullscreen:!0},{default:o((()=>[t(f,{name:"To Do List page"})])),_:1})])),_:1}))});export{p as default};
