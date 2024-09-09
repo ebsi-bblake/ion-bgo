@@ -4,9 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "404": "cp docs/index.html docs/404.html",
+    "404": "cp docs/index.html public/404.html",
     "dev": "vite",
-    "build": "vue-tsc && vite build && npm run 404",
+    "build": "npm run 404 && vue-tsc && vite build",
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "serve": "ionic serve --ssl --ssl-key certs/ion-bgo.key --ssl-cert certs/ion-bgo.crt --external --host=192.168.7.206",
     "run:ios": "ionic capacitor run ios -l --external",
-    "certs": "mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem 'localhost'"
+    "make:assets": "npx capacitor-assets generate",
+    "make:certs": "mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem 'localhost'"
   },
   "dependencies": {
     "@capacitor/android": "6.1.2",
@@ -38,6 +39,8 @@
   },
   "devDependencies": {
     "@capacitor/cli": "6.1.2",
+    "@capacitor/assets": "^3.0.5",
+    "@types/vue": "^2.0.0",
     "@vitejs/plugin-legacy": "^5.0.0",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vue/eslint-config-typescript": "^12.0.0",

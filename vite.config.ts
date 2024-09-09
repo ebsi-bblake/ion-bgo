@@ -38,8 +38,8 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       target: "es2015",
-      outDir: "docs",
-      assetsDir: "assets",
+      outDir: "docs/ion-bgo/",
+      assetsDir: "./assets/",
       minify: "terser",
     },
     ...(isDev() && {
