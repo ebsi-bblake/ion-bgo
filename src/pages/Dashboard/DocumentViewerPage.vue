@@ -12,6 +12,13 @@
       ></video>
 
       <!-- Initial Canvas for video frame (hidden after capture) -->
+      <ion-icon
+        id="close-camera"
+        name="ion-outline"
+        v-if="appState === AppState.Streaming"
+        @click="stopVideoFeed"
+      >
+      </ion-icon>
       <canvas ref="canvasRef" id="outputCanvas"></canvas>
 
       <!-- Canvas for captured image (visible after capture) -->
@@ -22,8 +29,8 @@
       ></canvas>
 
       <div class="action-buttons">
-        <ion-button v-if="appState === AppState.Pre" @click="scanDocument">
-          Start
+        <ion-button @click="scanDocument">
+          {{ "appState === AppState.Pre" ? "Start" : "Retake" }}
         </ion-button>
 
         <ion-button
@@ -34,12 +41,6 @@
         </ion-button>
         <ion-button v-if="appState === AppState.Streaming" @click="toggleFlash">
           Turn On Flash
-        </ion-button>
-        <ion-button
-          v-if="appState === AppState.Streaming"
-          @click="stopVideoFeed"
-        >
-          Stop
         </ion-button>
 
         <ion-button
@@ -62,7 +63,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { IonPage, IonContent, IonButton } from "@ionic/vue";
+import { IonPage, IonContent, IonButton, IonIcon } from "@ionic/vue";
 import { Capacitor } from "@capacitor/core";
 import { DocumentScanner } from "capacitor-document-scanner"; // Your plugin
 
@@ -108,7 +109,7 @@ const clearStateAndStart = () => {
     0,
     0,
     resultCanvasRef.value.width,
-    resultCanvasRef.value.height,
+    resultCanvasRef.value.height
   ); // Clear the result canvas
 
   // Transition to streaming state and start the video feed
@@ -263,7 +264,7 @@ const improveBorderingAlgorithm = (borderColor = "blue") => {
     contours,
     hierarchy,
     cv.RETR_EXTERNAL,
-    cv.CHAIN_APPROX_SIMPLE,
+    cv.CHAIN_APPROX_SIMPLE
   );
 
   // Filter the contours and find the largest one
@@ -331,7 +332,7 @@ const captureImage = () => {
 };
 
 const drawCornerCircles = (cornerPoints, ctx) => {
-  const circleRadius = 10;
+  const circleRadius = 15;
 
   // Extract the corners
   const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } =
@@ -342,12 +343,12 @@ const drawCornerCircles = (cornerPoints, ctx) => {
     (corner) => {
       ctx.beginPath();
       ctx.arc(corner.x, corner.y, circleRadius, 0, 2 * Math.PI);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.5)"; // Circle color
+      ctx.fillStyle = "rgba(255, 255, 255, 0)"; // Circle color
       ctx.fill();
       ctx.strokeStyle = "white"; // Circle border color
       ctx.lineWidth = 2;
       ctx.stroke();
-    },
+    }
   );
 };
 const drawCaptureBoundary = (canvas, ctx) => {
@@ -400,7 +401,7 @@ const extractDocument = () => {
 
   const calculateDistance = (point1, point2) => {
     return Math.sqrt(
-      Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2),
+      Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)
     );
   };
 
@@ -411,13 +412,13 @@ const extractDocument = () => {
     topLeftCorner,
     topRightCorner,
     bottomLeftCorner,
-    bottomRightCorner,
+    bottomRightCorner
   );
   const paperHeight = getDistance(
     topLeftCorner,
     bottomLeftCorner,
     topRightCorner,
-    bottomRightCorner,
+    bottomRightCorner
   );
 
   // Math.max(
@@ -437,7 +438,7 @@ const extractDocument = () => {
   const resultCanvasImage = scanner.extractPaper(
     "outputCanvas",
     paperWidth,
-    paperHeight,
+    paperHeight
   );
 
   console.log(resultCanvasImage);
@@ -499,5 +500,11 @@ const toggleFlash = () => {
 .action-buttons {
   margin-top: 20px;
   text-align: center;
+}
+
+.close-camera {
+  position: relative;
+  font-size: 200px;
+  border: 3px solid orange;
 }
 </style>
