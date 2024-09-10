@@ -1,0 +1,1 @@
+import{d as a,o as s,c as e,w as t,a as n,u as o,f as l,g as r}from"./index-C-wmAkpR.js";import{E as f}from"./ExploreContainer-BCnwAams.js";const p=a({__name:"SettingsPage",setup:a=>(a,p)=>(s(),e(o(r),null,{default:t((()=>[n(o(l),{fullscreen:!0},{default:t((()=>[n(f,{name:"Settings page"})])),_:1})])),_:1}))});export{p as default};

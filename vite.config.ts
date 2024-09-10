@@ -18,6 +18,66 @@ export default defineConfig(({ mode }) => {
         devOptions: {
           enabled: true,
         },
+        manifest: {
+          name: "ion-bgo",
+          id: "/ion-bgo",
+          short_name: "IonBGO",
+          description: "An Ionic version of BGO...just in case",
+          start_url: "/ion-bgo",
+          display: "fullscreen",
+          display_override: ["fullscreen"],
+          background_color: "#ffffff",
+          theme_color: "#3880ff",
+          icons: [
+            {
+              src: "/favicon.png",
+              type: "image/png",
+              sizes: "192x192",
+            },
+            {
+              src: "../icons/icon-48.webp",
+              type: "image/png",
+              sizes: "48x48",
+              purpose: "any maskable",
+            },
+            {
+              src: "../icons/icon-72.webp",
+              type: "image/png",
+              sizes: "72x72",
+              purpose: "any maskable",
+            },
+            {
+              src: "../icons/icon-96.webp",
+              type: "image/png",
+              sizes: "96x96",
+              purpose: "any maskable",
+            },
+            {
+              src: "../icons/icon-128.webp",
+              type: "image/png",
+              sizes: "128x128",
+              purpose: "any maskable",
+            },
+            {
+              src: "../icons/icon-192.webp",
+              type: "image/png",
+              sizes: "192x192",
+              purpose: "any maskable",
+            },
+            {
+              src: "../icons/icon-256.webp",
+              type: "image/png",
+              sizes: "256x256",
+              purpose: "any maskable",
+            },
+            {
+              src: "../icons/icon-512.webp",
+              type: "image/png",
+              sizes: "512x512",
+              purpose: "any maskable",
+            },
+          ],
+        },
       }),
       legacy({
         targets: ["ie >= 11"],
@@ -38,8 +98,8 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       target: "es2015",
-      outDir: "docs/ion-bgo/",
-      assetsDir: "./assets/",
+      outDir: "docs/",
+      assetsDir: "assets/",
       minify: "terser",
     },
     ...(isDev() && {
