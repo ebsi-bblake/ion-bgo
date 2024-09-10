@@ -2,58 +2,33 @@
   <ion-page>
     <ion-content>
       <!-- Video feed (hidden after capture) -->
-      <video
-        ref="videoRef"
-        id="videoSource"
-        playsinline
-        autoplay
-        muted
-        style="opacity: 0; width: 0; height: 0"
-      ></video>
+      <video ref="videoRef" id="videoSource" playsinline autoplay muted style="opacity: 0; width: 0; height: 0"></video>
 
       <!-- Initial Canvas for video frame (hidden after capture) -->
-      <ion-icon
-        id="close-camera"
-        name="ion-outline"
-        v-if="appState === AppState.Streaming"
-        @click="stopVideoFeed"
-      >
+      <ion-icon id="close-camera" :name="closeOutline" v-if="appState === AppState.Streaming" @click="stopVideoFeed">
       </ion-icon>
       <canvas ref="canvasRef" id="outputCanvas"></canvas>
 
       <!-- Canvas for captured image (visible after capture) -->
-      <canvas
-        ref="resultCanvasRef"
-        id="resultCanvas"
-        style="display: none"
-      ></canvas>
+      <canvas ref="resultCanvasRef" id="resultCanvas" style="display: none"></canvas>
 
       <div class="action-buttons">
         <ion-button @click="scanDocument">
           {{ "appState === AppState.Pre" ? "Start" : "Retake" }}
         </ion-button>
 
-        <ion-button
-          v-if="appState === AppState.Streaming"
-          @click="captureImage"
-        >
+        <ion-button v-if="appState === AppState.Streaming" @click="captureImage">
           Capture Image
         </ion-button>
         <ion-button v-if="appState === AppState.Streaming" @click="toggleFlash">
           Turn On Flash
         </ion-button>
 
-        <ion-button
-          v-if="appState === AppState.Interaction"
-          @click="extractDocument"
-        >
+        <ion-button v-if="appState === AppState.Interaction" @click="extractDocument">
           Extract
         </ion-button>
 
-        <ion-button
-          v-if="[AppState.Interaction].includes(appState)"
-          @click="saveDocument"
-        >
+        <ion-button v-if="[AppState.Interaction].includes(appState)" @click="saveDocument">
           Save
         </ion-button>
       </div>
@@ -64,6 +39,7 @@
 <script setup>
 import { ref } from "vue";
 import { IonPage, IonContent, IonButton, IonIcon } from "@ionic/vue";
+import { closeOutline } from "ionicons/icons";
 import { Capacitor } from "@capacitor/core";
 import { DocumentScanner } from "capacitor-document-scanner"; // Your plugin
 
@@ -144,7 +120,6 @@ const startVideoFeed = () => {
     },
   };
 
-  console.log(videoRef.value.style.display);
   if (!videoRef.value || !canvasRef.value) {
     console.error("Video or canvas references are not available");
     return;
@@ -156,7 +131,6 @@ const startVideoFeed = () => {
   loadOpenCv(() => {
     console.log("OpenCV loaded and ready.");
     initCamera(constraints, videoRef.value, () => {
-      // console.log("initCamera", videoRef.value);
       const ctx = canvasRef.value.getContext("2d");
       const scanner = new jscanify();
       copyToCanvas(videoRef.value, ctx, scanner);
@@ -328,7 +302,8 @@ const captureImage = () => {
   videoRef.value.style.display = "none";
   drawCaptureBoundary(canvas, ctx);
 
-  appState.value = AppState.Interaction; // Switch to interaction state
+  appState.value = AppState.Interaction;
+  startInteraction(); // Switch to interaction state
 };
 
 const drawCornerCircles = (cornerPoints, ctx) => {
@@ -386,6 +361,129 @@ const drawCaptureBoundary = (canvas, ctx) => {
   ctx.stroke(); // Render the border/ Draw the boundary
 
   drawCornerCircles(cornerPoints, ctx);
+};
+
+const startInteraction = () => {
+  let selectedCorner = null;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  const resultCanvas = resultCanvasRef.value;
+  const circleRadius = 100; // Define the radius for checking clicks
+
+  // Check if a point is inside a circle
+  const isInsideCircle = (x, y, corner) => {
+    const dx = x - corner.x;
+    const dy = y - corner.y;
+    return dx * dx + dy * dy <= circleRadius * circleRadius;
+  };
+
+  // Add event listeners for mouse and touch
+  resultCanvas.addEventListener("mousedown", onMouseDown);
+  resultCanvas.addEventListener("mousemove", onMouseMove);
+  resultCanvas.addEventListener("mouseup", onMouseUp);
+
+  resultCanvas.addEventListener("touchstart", onTouchStart);
+  resultCanvas.addEventListener("touchmove", onTouchMove);
+  resultCanvas.addEventListener("touchend", onTouchEnd);
+
+  // Handle mouse down
+  function onMouseDown(event) {
+    const x = event.offsetX;
+    const y = event.offsetY;
+
+    // Check if clicked on any of the adjusted corners
+    selectedCorner = getSelectedCorner(x, y);
+
+    console.log(selectedCorner);
+    if (selectedCorner) {
+      // Calculate offset between the corner's center and the click point
+      offsetX = x - selectedCorner.x;
+      offsetY = y - selectedCorner.y;
+    }
+  }
+
+  // Handle mouse move
+  function onMouseMove(event) {
+    if (selectedCorner) {
+      const x = event.offsetX - offsetX;
+      const y = event.offsetY - offsetY;
+
+      // Update selected corner position
+      selectedCorner.x = x;
+      selectedCorner.y = y;
+
+      // Redraw canvas with updated corner positions
+      redrawCanvasWithAdjustedCorners();
+    }
+  }
+
+  // Handle mouse up
+  function onMouseUp() {
+    selectedCorner = null;
+  }
+
+  // Touch events (similar to mouse events)
+  function onTouchStart(event) {
+    const touch = event.touches[0];
+    const rect = resultCanvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    selectedCorner = getSelectedCorner(x, y);
+    console.log(selectedCorner);
+
+    if (selectedCorner) {
+      offsetX = x - selectedCorner.x;
+      offsetY = y - selectedCorner.y;
+    }
+  }
+
+  function onTouchMove(event) {
+    if (selectedCorner) {
+      const touch = event.touches[0];
+      const rect = resultCanvas.getBoundingClientRect();
+      const x = touch.clientX - rect.left - offsetX;
+      const y = touch.clientY - rect.top - offsetY;
+
+      // Update selected corner position
+      selectedCorner.x = x;
+      selectedCorner.y = y;
+
+      redrawCanvasWithAdjustedCorners();
+    }
+  }
+
+  function onTouchEnd() {
+    selectedCorner = null;
+  }
+
+  // Get the selected corner based on user input
+  const getSelectedCorner = (x, y) => {
+    const {
+      topLeftCorner,
+      topRightCorner,
+      bottomLeftCorner,
+      bottomRightCorner,
+    } = adjustedCorners;
+
+    // Check if the click/touch was inside one of the corners
+    if (isInsideCircle(x, y, topLeftCorner)) return topLeftCorner;
+    if (isInsideCircle(x, y, topRightCorner)) return topRightCorner;
+    if (isInsideCircle(x, y, bottomLeftCorner)) return bottomLeftCorner;
+    if (isInsideCircle(x, y, bottomRightCorner)) return bottomRightCorner;
+
+    return null;
+  };
+
+  // Function to redraw the canvas with updated corners
+  const redrawCanvasWithAdjustedCorners = () => {
+    const ctx = resultCanvas.getContext("2d");
+    ctx.clearRect(0, 0, resultCanvas.width, resultCanvas.height); // Clear the canvas
+
+    // Redraw the boundary and circles with adjusted corners
+    drawCaptureBoundary(resultCanvas, ctx);
+  };
 };
 
 // Extract the document
