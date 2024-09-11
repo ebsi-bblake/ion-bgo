@@ -4,9 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "404": "cp docs/index.html public/404.html",
+    "404": "cp docs/index.html docs/404.html",
     "dev": "npm run serve",
-    "build": "vue-tsc && vite build; npm run 404",
+    "build": "vue-tsc && vite build && npm run 404",
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
