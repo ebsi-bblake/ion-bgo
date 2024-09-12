@@ -10,7 +10,7 @@ import fs from "fs";
 export default defineConfig(({ mode }) => {
   const isDev = () => mode == "development";
   return {
-    base: "/ion-bgo/",
+    base: ["github", "development"].includes(mode) ? "/ion-bgo/" : "/",
     plugins: [
       vue(),
       VitePWA({
