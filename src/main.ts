@@ -36,9 +36,16 @@ import "@ionic/vue/css/palettes/dark.system.css";
 import "./theme/variables.css";
 // Register the service worker
 if ("serviceWorker" in navigator) {
+  const swPath =
+    window.location.hostname === "localhost"
+      ? "../dev-dist/sw.js"
+      : "/ion-bgo/sw.js";
   navigator.serviceWorker
-    .register("/ion-bgo/sw.js")
-    .then(() => console.log("Service Worker Registered"));
+    .register(swPath)
+    .then(() => console.log(`Service Worker registered at: ${swPath}`))
+    .catch((error) =>
+      console.error("Service Worker registration failed:", error)
+    );
 }
 // Above the createApp() line
 defineCustomElements(window);

@@ -59,7 +59,8 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "document-viewer",
         name: "document-viewer",
-        component: () => import("@/pages/Dashboard/DocumentViewerPage.vue"),
+        component: () =>
+          import("@/pages/Dashboard/DocumentViewer/DocumentViewerPage.vue"),
       },
     ],
   },

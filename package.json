@@ -6,7 +6,7 @@
   "scripts": {
     "404": "cp docs/index.html docs/404.html",
     "clean": "rm -rf docs",
-    "dev": "npm run serve",
+    "dev": "cross-env MODE=development npm run serve",
     "build": "npm run clean && vue-tsc && cross-env MODE=$MODE vite build --mode $MODE && npm run 404",
     "preview": "vite preview",
     "test:e2e": "cypress run",
