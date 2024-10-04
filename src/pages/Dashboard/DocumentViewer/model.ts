@@ -1,8 +1,14 @@
+import { ref } from "vue";
+import jscanify from "jscanify";
+interface Point {
+  x: number;
+  y: number;
+}
 type AdjustedCorners = {
-  topLeftCorner: { x: number; y: number };
-  topRightCorner: { x: number; y: number };
-  bottomLeftCorner: { x: number; y: number };
-  bottomRightCorner: { x: number; y: number };
+  topLeftCorner: Point;
+  topRightCorner: Point;
+  bottomLeftCorner: Point;
+  bottomRightCorner: Point;
 };
 
 const adjustedCorners: AdjustedCorners = {
@@ -20,7 +26,7 @@ enum AppState {
   Save = "Save",
 }
 
-let selectedCorner: { x: number; y: number } | null = null;
+const selectedCorner = ref<Point | null>(null);
 const circleRadius = 15;
 // Function  to clear state and start the video feed
 const clearStateAndStart = (
@@ -187,7 +193,6 @@ const startVideoFeed = (
       constraints,
       videoRef.value,
       () => {
-        console.log("init?");
         const ctx = canvasRef.value.getContext("2d", {
           willReadFrequently: true,
         });
@@ -398,7 +403,7 @@ const isInsideCircle = (
 const getSelectedCorner = (x: number, y: number) => {
   const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } =
     adjustedCorners;
-
+  console.log(x, y);
   // Check if the click/touch was inside one of the corners
   if (isInsideCircle(x, y, topLeftCorner)) return topLeftCorner;
   if (isInsideCircle(x, y, topRightCorner)) return topRightCorner;
@@ -412,15 +417,18 @@ const calculateInteractionBoundary = (
   event: MouseEvent | TouchEvent,
   resultCanvas: HTMLCanvasElement
 ) => {
+  console.log(event);
   const rect = resultCanvas.getBoundingClientRect();
   const scaleX = getScaleX(resultCanvas);
   const scaleY = getScaleY(resultCanvas);
   // let offsetX = 0;
   // let offsetY = 0;
   // Get the mouse click coordinates relative to the canvas
-  const x = (event.clientX - rect.left) * scaleX;
-  const y = (event.clientY - rect.top) * scaleY;
-  selectedCorner = getSelectedCorner(x, y);
+  const positionX = event.clientX || event.layerX;
+  const positionY = event.clientY || event.layerY;
+  const x = (positionX - rect.left) * scaleX;
+  const y = (positionY - rect.top) * scaleY;
+  selectedCorner.value = getSelectedCorner(x, y);
   // if (selectedCorner) {
   //   offsetX = x - selectedCorner.x;
   //   offsetY = y - selectedCorner.y;
@@ -437,7 +445,7 @@ const onMouseDown =
 // Handle mouse move
 const onMouseMove =
   (resultCanvas: HTMLCanvasElement) => (event: MouseEvent) => {
-    if (selectedCorner) {
+    if (selectedCorner.value) {
       calculateInteractionBoundary(event, resultCanvas);
       // Redraw canvas with updated corner positions
       redrawCanvasWithAdjustedCorners(resultCanvas);
@@ -446,28 +454,26 @@ const onMouseMove =
 
 // Handle mouse up
 const onMouseUp = () => {
-  selectedCorner = null;
+  selectedCorner.value = null;
 };
 
 // Touch events (similar to mouse events)
 const onTouchStart =
   (resultCanvas: HTMLCanvasElement) => (event: MouseEvent) => {
-    if (selectedCorner) {
-      calculateInteractionBoundary(event, resultCanvas);
-    }
+    calculateInteractionBoundary(event, resultCanvas);
+    console.log("onTouchStart", selectedCorner.value);
   };
 
 const onTouchMove =
   (resultCanvas: HTMLCanvasElement) => (event: MouseEvent) => {
-    if (selectedCorner) {
-      calculateInteractionBoundary(event, resultCanvas);
+    calculateInteractionBoundary(event, resultCanvas);
 
-      redrawCanvasWithAdjustedCorners(resultCanvas);
-    }
+    console.log("onTouchMove", selectedCorner.value);
+    // redrawCanvasWithAdjustedCorners(resultCanvas);
   };
 
 const onTouchEnd = () => {
-  selectedCorner = null;
+  selectedCorner.value = null;
 };
 
 // Function to redraw the canvas with updated corners
