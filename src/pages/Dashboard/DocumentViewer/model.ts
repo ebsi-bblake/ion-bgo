@@ -1,5 +1,7 @@
 import { ref } from "vue";
-import jscanify from "jscanify";
+import { JScanify } from "@utils/jscanify.js";
+const cv = window.cv;
+// import { Prop } from "ionicons/dist/types/stencil-public-runtime";
 interface Point {
   x: number;
   y: number;
@@ -137,14 +139,14 @@ const copyToCanvas = (
   canvasRef: { value: HTMLCanvasElement },
   videoElement: HTMLVideoElement,
   ctx: CanvasRenderingContext2D,
-  scanner: jscanify, // assuming scanner is an instance of jscanify
+  scanner: typeof JScanify, // assuming scanner is an instance of jscanify
   appState: { value: keyof typeof AppState }
 ) => {
   const frame = () => {
     if (videoElement) {
       // Draw the current video frame onto the canvas
       ctx.drawImage(videoElement, 0, 0);
-      console.log(canvasRef.value);
+      // console.log(canvasRef.value);
       if (canvasRef.value) {
         // Existing functionality: Highlight paper using the scanner
         const resultCanvas = scanner.highlightPaper(canvasRef.value, {
@@ -181,7 +183,7 @@ const startVideoFeed = (
   }
   // Ensure the canvas is cleared before starting the video again
   const ctx = canvasRef.value.getContext("2d", { willReadFrequently: true });
-  ctx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
+  ctx?.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
 
   loadOpenCv(() => {
     console.log("OpenCV loaded and ready.");
@@ -196,8 +198,10 @@ const startVideoFeed = (
         const ctx = canvasRef.value.getContext("2d", {
           willReadFrequently: true,
         });
-        const scanner = new jscanify();
-        copyToCanvas(canvasRef, videoRef.value, ctx, scanner, appState);
+        if (ctx) {
+          const scanner = JScanify();
+          copyToCanvas(canvasRef, videoRef.value, ctx, scanner, appState);
+        }
       }
     );
   });
@@ -257,52 +261,57 @@ const drawCaptureBoundary = (
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D
 ) => {
-  if (canvas == null || ctx == null) return;
-  const imageData = canvas
-    ?.getContext("2d", { willReadFrequently: true })
-    .getImageData(0, 0, canvas.width, canvas.height);
-  const srcMat = cv.matFromImageData(imageData);
-  const scanner = new jscanify();
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (context) {
+    console.log(cv);
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const srcMat = cv.matFromImageData(imageData);
+    const scanner = JScanify();
 
-  console.log("Before findPaperContour: ", srcMat);
-  const contour = scanner.findPaperContour(srcMat);
-  console.log("After findPaperContour: ", contour);
+    console.log("Before findPaperContour: ", srcMat);
+    const contour = scanner.findPaperContour(srcMat);
+    console.log("After findPaperContour: ", contour);
 
-  if (!contour) {
-    console.error("No document found!");
-    return;
+    if (!contour) {
+      console.error("No document found!");
+      return;
+    }
+    const cornerPoints = scanner.getCornerPoints(contour);
+    // Example calculation of boundary box using corner points
+    // Extract all corner points
+    const {
+      topLeftCorner,
+      topRightCorner,
+      bottomLeftCorner,
+      bottomRightCorner,
+    } = cornerPoints;
+
+    adjustedCorners.topLeftCorner = topLeftCorner;
+    adjustedCorners.topRightCorner = topRightCorner;
+    adjustedCorners.bottomLeftCorner = bottomLeftCorner;
+    adjustedCorners.bottomRightCorner = bottomRightCorner;
+    // Save current canvas state before drawing the shade
+    ctx.save();
+
+    // Apply the shaded overlay outside the boundary
+    applyShadedOverlay(ctx, canvas, cornerPoints);
+
+    // Draw the exact boundary by connecting the corner points
+    ctx.lineWidth = 3; // Set the border width
+    ctx.strokeStyle = "white"; // Set the border color
+    ctx.beginPath();
+    ctx.moveTo(topLeftCorner.x, topLeftCorner.y); // Move to top left corner
+    ctx.lineTo(topRightCorner.x, topRightCorner.y); // Draw line to top right corner
+    ctx.lineTo(bottomRightCorner.x, bottomRightCorner.y); // Draw line to bottom right corner
+    ctx.lineTo(bottomLeftCorner.x, bottomLeftCorner.y); // Draw line to bottom left corner
+    ctx.closePath(); // Close the path (connect bottom left to top left)
+    ctx.stroke(); // Render the border/ Draw the boundary
+
+    drawCornerCircles(cornerPoints, ctx);
+
+    // Restore the canvas state
+    ctx.restore();
   }
-  const cornerPoints = scanner.getCornerPoints(contour);
-  // Example calculation of boundary box using corner points
-  // Extract all corner points
-  const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } =
-    cornerPoints;
-
-  adjustedCorners.topLeftCorner = topLeftCorner;
-  adjustedCorners.topRightCorner = topRightCorner;
-  adjustedCorners.bottomLeftCorner = bottomLeftCorner;
-  adjustedCorners.bottomRightCorner = bottomRightCorner;
-  // Save current canvas state before drawing the shade
-  ctx.save();
-
-  // Apply the shaded overlay outside the boundary
-  applyShadedOverlay(ctx, canvas, cornerPoints);
-
-  // Draw the exact boundary by connecting the corner points
-  ctx.lineWidth = 3; // Set the border width
-  ctx.strokeStyle = "white"; // Set the border color
-  ctx.beginPath();
-  ctx.moveTo(topLeftCorner.x, topLeftCorner.y); // Move to top left corner
-  ctx.lineTo(topRightCorner.x, topRightCorner.y); // Draw line to top right corner
-  ctx.lineTo(bottomRightCorner.x, bottomRightCorner.y); // Draw line to bottom right corner
-  ctx.lineTo(bottomLeftCorner.x, bottomLeftCorner.y); // Draw line to bottom left corner
-  ctx.closePath(); // Close the path (connect bottom left to top left)
-  ctx.stroke(); // Render the border/ Draw the boundary
-
-  drawCornerCircles(cornerPoints, ctx);
-
-  // Restore the canvas state
-  ctx.restore();
 };
 
 const borderingAlgorithm = (
@@ -312,6 +321,7 @@ const borderingAlgorithm = (
   const canvas = canvasRef.value; // The canvas displaying the video feed
   const ctx = canvas?.getContext("2d", { willReadFrequently: true });
   if (!ctx) return;
+  console.log(cv);
   // Get the current frame from the canvas
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const srcMat = cv.matFromImageData(imageData);
@@ -417,15 +427,17 @@ const calculateInteractionBoundary = (
   event: MouseEvent | TouchEvent,
   resultCanvas: HTMLCanvasElement
 ) => {
-  console.log(event);
   const rect = resultCanvas.getBoundingClientRect();
   const scaleX = getScaleX(resultCanvas);
   const scaleY = getScaleY(resultCanvas);
   // let offsetX = 0;
   // let offsetY = 0;
   // Get the mouse click coordinates relative to the canvas
-  const positionX = event.clientX || event.layerX;
-  const positionY = event.clientY || event.layerY;
+
+  const positionX =
+    event instanceof MouseEvent ? event.layerX : event.touches[0].clientX;
+  const positionY =
+    event instanceof MouseEvent ? event.layerY : event.touches[0].clientY;
   const x = (positionX - rect.left) * scaleX;
   const y = (positionY - rect.top) * scaleY;
   selectedCorner.value = getSelectedCorner(x, y);

@@ -2,33 +2,58 @@
   <ion-page>
     <ion-content>
       <!-- Video feed (hidden after capture) -->
-      <video ref="videoRef" id="videoSource" playsinline autoplay muted style="opacity: 0; width: 0; height: 0"></video>
+      <video
+        ref="videoRef"
+        id="videoSource"
+        playsinline
+        autoplay
+        muted
+        style="opacity: 0; width: 0; height: 0"
+      ></video>
 
       <!-- Initial Canvas for video frame (hidden after capture) -->
-      <ion-icon id="close-camera" :name="closeOutline" v-if="appState === AppState.Streaming" @click="stopVideoFeed">
+      <ion-icon
+        id="close-camera"
+        :name="closeOutline"
+        v-if="appState === AppState.Streaming"
+        @click="stopVideoFeed"
+      >
       </ion-icon>
       <canvas ref="canvasRef" id="outputCanvas"></canvas>
 
       <!-- Canvas for captured image (visible after capture) -->
-      <canvas ref="resultCanvasRef" id="resultCanvas" style="display: none"></canvas>
+      <canvas
+        ref="resultCanvasRef"
+        id="resultCanvas"
+        style="display: none"
+      ></canvas>
 
       <div class="action-buttons">
         <ion-button @click="scanDocument">
           {{ "appState === AppState.Pre" ? "Start" : "Retake" }}
         </ion-button>
 
-        <ion-button v-if="appState === AppState.Streaming" @click="captureImage">
+        <ion-button
+          v-if="appState === AppState.Streaming"
+          @click="captureImage"
+        >
           Capture Image
         </ion-button>
         <ion-button v-if="appState === AppState.Streaming" @click="toggleFlash">
           Turn On Flash
         </ion-button>
 
-        <ion-button v-if="appState === AppState.Interaction" @click="extractDocument">
+        <ion-button
+          v-if="appState === AppState.Interaction"
+          @click="extractDocument"
+        >
           Extract
         </ion-button>
 
-        <ion-button v-if="[AppState.Interaction].includes(appState)" @click="saveDocument">
+        <ion-button
+          v-if="[AppState.Interaction].includes(appState)"
+          @click="saveDocument"
+        >
           Save
         </ion-button>
       </div>
@@ -55,7 +80,7 @@ import {
   onTouchEnd,
   onTouchMove,
 } from "./model.ts";
-import jscanify from "jscanify";
+import { JScanify } from "@/utils/jscanify";
 
 // Platform detection
 const isMobile = Capacitor.getPlatform() !== "web";
@@ -100,7 +125,7 @@ const captureImage = () => {
   ctx.drawImage(videoRef.value, 0, 0, canvas.width, canvas.height);
   resultCanvas.style.display = "block";
 
-  stopVideoFeed();
+  // stopVideoFeed();
   borderingAlgorithm(canvasRef, "white"); // Pass 'white' for capture
   canvas.style.display = "none";
   videoRef.value.style.display = "none";
@@ -130,8 +155,8 @@ const extractDocument = () => {
   // const canvas = canvasRef.value;
   const resultCanvas = resultCanvasRef.value;
   const ctx = resultCanvas.getContext("2d");
-
-  const scanner = new jscanify();
+  console.log("wait a min", JScanify);
+  const scanner = JScanify();
 
   const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } =
     adjustedCorners;
