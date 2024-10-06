@@ -34,6 +34,7 @@ export const JScanify = () => {
     const contours = new cv.MatVector();
     const hierarchy = new cv.Mat();
 
+    // Find contours in the thresholded image
     cv.findContours(
       imgThresh,
       contours,
@@ -44,23 +45,58 @@ export const JScanify = () => {
 
     let maxArea = 0;
     let maxContourIndex = -1;
-    for (let i = 0; i < contours.size(); ++i) {
-      const contourArea = cv.contourArea(contours.get(i));
-      if (contourArea > maxArea) {
-        maxArea = contourArea;
-        maxContourIndex = i;
+
+    // Check if any contours were found
+    if (contours.size() > 0) {
+      for (let i = 0; i < contours.size(); ++i) {
+        // Log contour index
+        // console.log(`Processing contour ${i}`);
+
+        // Calculate the area of the current contour
+        const contour = contours.get(i);
+        const contourArea = cv.contourArea(contour);
+
+        // console.log(`Contour ${i} area: ${contourArea}`);
+
+        // If the contour area is larger than the current max area, update it
+        if (contourArea > maxArea) {
+          maxArea = contourArea;
+          maxContourIndex = i;
+        }
+
+        // Cleanup the current contour
+        contour.delete();
+      }
+
+      // Ensure maxContourIndex is valid
+      if (maxContourIndex !== -1) {
+        const maxContour = contours.get(maxContourIndex);
+        // console.log(
+        //   `Max contour found at index: ${maxContourIndex} with area: ${maxArea}`
+        // );
+
+        // Cleanup unused Mats
+        imgGray.delete();
+        imgBlur.delete();
+        imgThresh.delete();
+        hierarchy.delete();
+        contours.delete();
+
+        return maxContour; // Return the largest contour
       }
     }
 
-    const maxContour = contours.get(maxContourIndex);
+    // Log if no contours were found
+    // console.info("No contours found.");
 
+    // Cleanup unused Mats
     imgGray.delete();
     imgBlur.delete();
     imgThresh.delete();
     contours.delete();
     hierarchy.delete();
 
-    return maxContour;
+    return null; // No contours found
   };
 
   /**

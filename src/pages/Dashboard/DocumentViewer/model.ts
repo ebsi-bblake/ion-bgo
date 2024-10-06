@@ -30,6 +30,7 @@ enum AppState {
 
 const selectedCorner = ref<Point | null>(null);
 const circleRadius = 15;
+
 // Function  to clear state and start the video feed
 const clearStateAndStart = (
   imageSrc: { value: string },
@@ -71,8 +72,9 @@ const loadOpenCv = (onComplete: () => void) => {
   } else {
     const script = document.createElement("script");
     script.id = "open-cv";
+    script.async = true;
     script.src = openCvURL;
-    script.onload = () => setTimeout(onComplete, 1000);
+    script.onload = onComplete;
     document.body.appendChild(script);
   }
 };
@@ -146,7 +148,6 @@ const copyToCanvas = (
     if (videoElement) {
       // Draw the current video frame onto the canvas
       ctx.drawImage(videoElement, 0, 0);
-      // console.log(canvasRef.value);
       if (canvasRef.value) {
         // Existing functionality: Highlight paper using the scanner
         const resultCanvas = scanner.highlightPaper(canvasRef.value, {
@@ -263,14 +264,11 @@ const drawCaptureBoundary = (
 ) => {
   const context = canvas.getContext("2d", { willReadFrequently: true });
   if (context) {
-    console.log(cv);
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    const srcMat = cv.matFromImageData(imageData);
+    const srcMat = window.cv.matFromImageData(imageData);
     const scanner = JScanify();
 
-    console.log("Before findPaperContour: ", srcMat);
     const contour = scanner.findPaperContour(srcMat);
-    console.log("After findPaperContour: ", contour);
 
     if (!contour) {
       console.error("No document found!");
@@ -320,8 +318,7 @@ const borderingAlgorithm = (
 ) => {
   const canvas = canvasRef.value; // The canvas displaying the video feed
   const ctx = canvas?.getContext("2d", { willReadFrequently: true });
-  if (!ctx) return;
-  console.log(cv);
+  if (!ctx || !cv) return;
   // Get the current frame from the canvas
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const srcMat = cv.matFromImageData(imageData);

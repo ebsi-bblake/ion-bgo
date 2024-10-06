@@ -155,7 +155,6 @@ const extractDocument = () => {
   // const canvas = canvasRef.value;
   const resultCanvas = resultCanvasRef.value;
   const ctx = resultCanvas.getContext("2d");
-  console.log("wait a min", JScanify);
   const scanner = JScanify();
 
   const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } =
@@ -192,7 +191,6 @@ const extractDocument = () => {
     paperHeight
   );
 
-  console.log(resultCanvasImage);
   resultCanvas.width = paperWidth;
   resultCanvas.height = paperHeight;
   ctx.drawImage(resultCanvasImage, 0, 0);
