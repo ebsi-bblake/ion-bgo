@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { JScanify } from "@utils/jscanify.js";
+import { JScanify, JScanify as JScanifyType } from "@utils/jscanify";
 const cv = window.cv;
 // import { Prop } from "ionicons/dist/types/stencil-public-runtime";
 interface Point {
@@ -141,7 +141,7 @@ const copyToCanvas = (
   canvasRef: { value: HTMLCanvasElement },
   videoElement: HTMLVideoElement,
   ctx: CanvasRenderingContext2D,
-  scanner: typeof JScanify, // assuming scanner is an instance of jscanify
+  scanner: JScanifyType, // assuming scanner is an instance of jscanify
   appState: { value: keyof typeof AppState }
 ) => {
   const frame = () => {
@@ -274,7 +274,7 @@ const drawCaptureBoundary = (
       console.error("No document found!");
       return;
     }
-    const cornerPoints = scanner.getCornerPoints(contour);
+    const cornerPoints = scanner.getCornerPoints(contour, imageData);
     // Example calculation of boundary box using corner points
     // Extract all corner points
     const {
