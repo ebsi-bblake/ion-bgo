@@ -1,1 +1,0 @@
-import{d as a,o as s,c as e,w as o,a as n,u as t,f as l,g as r}from"./index-CBreiGDI.js";import{E as f}from"./ExploreContainer-BdII1f9j.js";const u=a({__name:"InboxPage",setup:a=>(a,u)=>(s(),e(t(r),null,{default:o((()=>[n(t(l),{fullscreen:!0},{default:o((()=>[n(f,{name:"Inbox page"})])),_:1})])),_:1}))});export{u as default};
