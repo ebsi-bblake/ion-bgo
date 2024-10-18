@@ -1,9 +1,14 @@
+import { ref } from "vue";
+
 declare global {
   interface Window {
     Pose: any;
     Camera: any;
   }
 }
+
+// App State managed in the model
+export const appState = ref("Pre");
 
 // Init MediaPipe Pose detection
 export const initPoseDetection = async (
@@ -24,7 +29,7 @@ export const initPoseDetection = async (
   });
 
   pose.setOptions({
-    modelComplexity: 1,
+    modelComplexity: 0,
     smoothLandmarks: true,
     minDetectionConfidence: 0.5,
     minTrackingConfidence: 0.5,
@@ -37,11 +42,12 @@ export const initPoseDetection = async (
     onFrame: async () => {
       await pose.send({ image: videoElement });
     },
-    width: 1280,
-    height: 720,
+    width: 1920,
+    height: 1080,
   });
 
   camera.start();
+  appState.value = "Streaming"; // Update state to 'Streaming'
 };
 
 // Stop Pose detection and video feed
@@ -51,6 +57,7 @@ export const stopPoseDetection = (videoElement: HTMLVideoElement): void => {
     tracks.forEach((track: MediaStreamTrack) => track.stop());
     videoElement.srcObject = null;
   }
+  appState.value = "Pre"; // Update state to 'Pre'
 };
 
 // Interfaces for landmarks and drawing options
