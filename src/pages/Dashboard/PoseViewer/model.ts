@@ -5,41 +5,20 @@ declare global {
   }
 }
 
-let Pose: any;
-let Camera: any;
-
-// Load MediaPipe Pose and Camera from CDN
-export const loadMediaPipePose = async (): Promise<void> => {
-  if (!window.Pose || !window.Camera) {
-    await new Promise<void>((resolve) => {
-      const poseScript = document.createElement("script");
-      poseScript.src = "https://cdn.jsdelivr.net/npm/@mediapipe/pose";
-      const cameraScript = document.createElement("script");
-      cameraScript.src = "https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils";
-
-      poseScript.onload = () => {
-        cameraScript.onload = () => {
-          Pose = window.Pose;
-          Camera = window.Camera;
-          resolve();
-        };
-      };
-
-      document.body.appendChild(poseScript);
-      document.body.appendChild(cameraScript);
-    });
-  }
-};
-
-// Initialize Pose detection
+// Init MediaPipe Pose detection
 export const initPoseDetection = async (
   videoElement: HTMLVideoElement,
   canvasElement: HTMLCanvasElement,
   onResultsCallback: (results: any) => void,
 ): Promise<void> => {
-  await loadMediaPipePose(); // Ensure the MediaPipe Pose library is loaded
+  if (!window.Pose || !window.Camera) {
+    throw new Error(
+      "MediaPipe Pose or Camera not loaded. Ensure the scripts are loaded correctly.",
+    );
+  }
 
-  const pose = new Pose({
+  // Initialize Pose
+  const pose = new window.Pose({
     locateFile: (file: string) =>
       `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
   });
@@ -53,7 +32,8 @@ export const initPoseDetection = async (
 
   pose.onResults(onResultsCallback);
 
-  const camera = new Camera(videoElement, {
+  // Initialize Camera
+  const camera = new window.Camera(videoElement, {
     onFrame: async () => {
       await pose.send({ image: videoElement });
     },
