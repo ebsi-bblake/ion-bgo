@@ -403,6 +403,7 @@ const isInsideCircle = (
 ) => {
   const dx = x - corner.x;
   const dy = y - corner.y;
+  console.log(dx * dx + dy * dy <= circleRadius * circleRadius);
   return dx * dx + dy * dy <= circleRadius * circleRadius;
 };
 
@@ -410,7 +411,14 @@ const isInsideCircle = (
 const getSelectedCorner = (x: number, y: number) => {
   const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } =
     adjustedCorners;
-  console.log(x, y);
+  console.log(
+    x,
+    y,
+    topLeftCorner,
+    topRightCorner,
+    bottomLeftCorner,
+    bottomRightCorner
+  );
   // Check if the click/touch was inside one of the corners
   if (isInsideCircle(x, y, topLeftCorner)) return topLeftCorner;
   if (isInsideCircle(x, y, topRightCorner)) return topRightCorner;
@@ -435,9 +443,11 @@ const calculateInteractionBoundary = (
     event instanceof MouseEvent ? event.layerX : event.touches[0].clientX;
   const positionY =
     event instanceof MouseEvent ? event.layerY : event.touches[0].clientY;
-  const x = (positionX - rect.left) * scaleX;
-  const y = (positionY - rect.top) * scaleY;
+  const x = positionX - rect.left; // * scaleX;
+  const y = positionY - rect.top; //* scaleY;
   selectedCorner.value = getSelectedCorner(x, y);
+  console.log(positionX, positionY);
+  console.log(selectedCorner.value);
   // if (selectedCorner) {
   //   offsetX = x - selectedCorner.x;
   //   offsetY = y - selectedCorner.y;
@@ -491,7 +501,7 @@ const redrawCanvasWithAdjustedCorners = (resultCanvas: HTMLCanvasElement) => {
   ctx?.clearRect(0, 0, resultCanvas.width, resultCanvas.height); // Clear the canvas
   // Redraw the boundary and circles with adjusted corners
   if (resultCanvas && ctx) {
-    drawCaptureBoundary(resultCanvas, ctx);
+    //   drawCaptureBoundary(resultCanvas, ctx);
   }
 };
 

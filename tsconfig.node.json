@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "composite": true,
-    "target": "ESNext",
+    "target": [
+      "ESNext",
+      "DOM"
+    ],
     "useDefineForClassFields": true,
     "module": "ESNext",
     "moduleResolution": "Node",
