@@ -12,7 +12,12 @@
       ></video>
 
       <!-- Canvas for pose overlay -->
-      <canvas ref="canvasRef" id="outputCanvas"></canvas>
+      <canvas
+        ref="canvasRef"
+        id="outputCanvas"
+        width="1920"
+        height="1080"
+      ></canvas>
 
       <div class="action-buttons">
         <!-- Start or Retake Pose Detection -->
@@ -63,11 +68,11 @@ const onResults = (results) => {
   if (results.poseLandmarks) {
     drawConnectors(canvasCtx, results.poseLandmarks, window.POSE_CONNECTIONS, {
       color: "white",
-      lineWidth: 2,
+      lineWidth: 10,
     });
     drawLandmarks(canvasCtx, results.poseLandmarks, {
       color: "red",
-      lineWidth: 2,
+      lineWidth: 12,
     });
   }
 };
