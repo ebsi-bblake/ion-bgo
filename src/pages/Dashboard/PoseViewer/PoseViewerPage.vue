@@ -99,7 +99,7 @@ onBeforeUnmount(() => {
 <style scoped>
 #outputCanvas {
   width: 100%;
-  height: auto;
+  height: 100vh;
   min-height: 500px;
   border: 1px solid #ccc;
   margin-top: 20px;
